@@ -5,6 +5,7 @@ import controlBL.Secciones;
 import com.formdev.flatlaf.FlatLightLaf;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import javax.swing.JOptionPane;
 
 import javax.swing.UIManager;
@@ -277,7 +278,7 @@ public class seccionesGUI extends javax.swing.JFrame {
                 tableModel.addRow(fila);
 
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
@@ -286,7 +287,7 @@ public class seccionesGUI extends javax.swing.JFrame {
 
     private void cargarDatos() {
 
-        con.connect();
+        Conexion.connect();
         try {
             // ejecutar la sentencia para obtener todas las secciones
             ResultSet rs = con.consultarRegistro("SELECT * FROM secciones ORDER BY ID DESC");
@@ -325,7 +326,7 @@ public class seccionesGUI extends javax.swing.JFrame {
                 this.btnEliminar.setEnabled(false);
                 this.btnActualizar.setEnabled(false);
                 this.cargarDatos();
-            } catch (Exception e) {
+            } catch (SQLException e) {
                 System.out.println(e.getMessage());
             }
         } else {

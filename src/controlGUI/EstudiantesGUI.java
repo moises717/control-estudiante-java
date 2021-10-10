@@ -16,7 +16,8 @@ public class EstudiantesGUI extends javax.swing.JFrame {
 
     private static int xMouse;
     private static int yMouse;
-    private static final Conexion con = new Conexion();
+    private final Conexion con = new Conexion();
+    private static InfoEstudiante info;
 
     // constructor carga todos estudiantes
     public EstudiantesGUI() {
@@ -76,6 +77,9 @@ public class EstudiantesGUI extends javax.swing.JFrame {
         });
         tblEstudiantes.setShowGrid(false);
         tblEstudiantes.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblEstudiantesMouseClicked(evt);
+            }
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 tblEstudiantesMousePressed(evt);
             }
@@ -243,6 +247,25 @@ public class EstudiantesGUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnActulizarActionPerformed
 
+    private void tblEstudiantesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblEstudiantesMouseClicked
+        int fila = tblEstudiantes.getSelectedRow();
+        int id = Integer.parseInt(tblEstudiantes.getValueAt(fila, 0).toString());
+
+        if (evt.getClickCount() == 2) {
+
+            if (info == null) {
+                info = new InfoEstudiante(id);
+                info.setVisible(true);
+
+            } else {
+                info.setVisible(false);
+                info = new InfoEstudiante(id);
+                info.setVisible(true);
+            }
+
+        }
+    }//GEN-LAST:event_tblEstudiantesMouseClicked
+
     public Estudiantes getDatosActulizar() {
         Estudiantes objEstudiantes = new Estudiantes();
 
@@ -290,14 +313,18 @@ public class EstudiantesGUI extends javax.swing.JFrame {
         Conexion.connect();
 
         try {
-            String strQuery = "SELECT estudiantes.NOMBRES as NOMBRE_ESTUDIANTE, estudiantes.APELLIDOS as APELLIDO_ESTUDIANTE, estudiantes.ID as ID, docentes.NOMBRES as NOMBRE_DOCENTE, secciones.NUM_SECCION as SECCION, secciones.ASIGNATURAS as ASIGNATURAS "
+            String strQuery = "SELECT estudiantes.NOMBRES as NOMBRE_ESTUDIANTE, estudiantes.APELLIDOS as APELLIDO_ESTUDIANTE,"
+                    + " estudiantes.ID as ID, docentes.NOMBRES as NOMBRE_DOCENTE, secciones.NUM_SECCION as SECCION,"
+                    + " secciones.ASIGNATURAS as ASIGNATURAS, notas.NOTA1 as N1, notas.NOTA2 as N2, notas.NOTA3 as N3, notas.EXAMEN as EXAMEN "
                     + "FROM estudiantes LEFT JOIN docentes on (estudiantes.ID_DOCENTE = docentes.ID)"
                     + " LEFT JOIN secciones on (estudiantes.ID_SECCION = secciones.ID) "
-                    + "LEFT JOIN notas on (estudiantes.ID = notas.ID_ESTUDIANTE) ORDER BY ID DESC";
+                    + "LEFT JOIN notas on (estudiantes.ID = notas.ID_ESTUDIANTE) WHERE notas.FINALIZADO = 0 ORDER BY ID DESC";
 
             ResultSet rs = con.consultarRegistro(strQuery);
 
             crearTabla(rs);
+
+            Conexion.disconnect();
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -316,22 +343,26 @@ public class EstudiantesGUI extends javax.swing.JFrame {
             idCargar = idSeccion;
             column = "ID_SECCION";
         }
-//ORDER BY ID DESC
+
         Conexion.connect();
 
         try {
-            String strQuery = "SELECT estudiantes.NOMBRES as NOMBRE_ESTUDIANTE, estudiantes.APELLIDOS as APELLIDO_ESTUDIANTE, estudiantes.ID as ID, docentes.NOMBRES as NOMBRE_DOCENTE, secciones.NUM_SECCION as SECCION, secciones.ASIGNATURAS as ASIGNATURAS "
+            String strQuery = "SELECT estudiantes.NOMBRES as NOMBRE_ESTUDIANTE, estudiantes.APELLIDOS as APELLIDO_ESTUDIANTE, "
+                    + "estudiantes.ID as ID, docentes.NOMBRES as NOMBRE_DOCENTE, secciones.NUM_SECCION as SECCION, "
+                    + "secciones.ASIGNATURAS as ASIGNATURAS, notas.NOTA1 as N1, notas.NOTA2 as N2, notas.NOTA3 as N3, notas.EXAMEN as EXAMEN "
                     + "FROM estudiantes LEFT JOIN docentes on (estudiantes.ID_DOCENTE = docentes.ID)"
                     + " LEFT JOIN secciones on (estudiantes.ID_SECCION = secciones.ID) "
                     + "INNER JOIN notas on (estudiantes.ID = notas.ID_ESTUDIANTE) WHERE "
                     + column
                     + " ="
                     + idCargar
-                    + " ORDER BY ID DESC";
+                    + " AND notas.FINALIZADO = 0 ORDER BY ID DESC";
 
             ResultSet rs = con.consultarRegistro(strQuery);
 
             crearTabla(rs);
+
+            Conexion.disconnect();
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -344,16 +375,18 @@ public class EstudiantesGUI extends javax.swing.JFrame {
 
         try {
 
-            String strQuery = "SELECT estudiantes.NOMBRES as NOMBRE_ESTUDIANTE, estudiantes.APELLIDOS as APELLIDO_ESTUDIANTE, estudiantes.ID as ID, docentes.NOMBRES as NOMBRE_DOCENTE, secciones.NUM_SECCION as SECCION, secciones.ASIGNATURAS as ASIGNATURAS "
+            String strQuery = "SELECT estudiantes.NOMBRES as NOMBRE_ESTUDIANTE, estudiantes.APELLIDOS as APELLIDO_ESTUDIANTE,"
+                    + " estudiantes.ID as ID, docentes.NOMBRES as NOMBRE_DOCENTE, secciones.NUM_SECCION as SECCION,"
+                    + " secciones.ASIGNATURAS as ASIGNATURAS, notas.NOTA1 as N1, notas.NOTA2 as N2, notas.NOTA3 as N3, notas.EXAMEN as EXAMEN  "
                     + "FROM estudiantes LEFT JOIN docentes on (estudiantes.ID_DOCENTE = docentes.ID)"
                     + " LEFT JOIN secciones on (estudiantes.ID_SECCION = secciones.ID) "
                     + "LEFT JOIN notas on (estudiantes.ID = notas.ID_ESTUDIANTE) WHERE estudiantes.NOMBRES like '%" + txtBuscar.getText() + "%' "
-                    + "OR estudiantes.APELLIDOS like '%" + txtBuscar.getText() + "%' ";
+                    + "AND notas.FINALIZADO = 0";
 
             ResultSet rs = con.consultarRegistro(strQuery);
 
             crearTabla(rs);
-
+            Conexion.disconnect();
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -370,20 +403,33 @@ public class EstudiantesGUI extends javax.swing.JFrame {
         tableModel.addColumn("DOCENTE");
         tableModel.addColumn("SECCION");
         tableModel.addColumn("ASIGNATURAS");
+        tableModel.addColumn("ESTADO");
 
         try {
+
             // Agregar datos a la tabla
             while (rs.next() == true) {
-                String[] fila = new String[6];
 
-                fila[0] = rs.getString("ID");
-                fila[1] = rs.getString("NOMBRE_ESTUDIANTE");
-                fila[2] = rs.getString("APELLIDO_ESTUDIANTE");
-                fila[3] = rs.getString("NOMBRE_DOCENTE");
-                fila[4] = rs.getString("SECCION");
-                fila[5] = rs.getString("ASIGNATURAS");
+                double promedio = (rs.getInt("N1") + rs.getInt("N2") + rs.getInt("N3")) / 3 * 0.60;
+                double examenF = rs.getInt("EXAMEN");
+                String aprobo;
 
-                tableModel.addRow(fila);
+                double notaFinal = promedio + examenF;
+          
+
+                if (rs.getInt("EXAMEN") == 0) {
+                    aprobo = "EVALUANDO";
+                } else {
+                    if (notaFinal > 60) {
+                        aprobo = "APROBADO";
+                    } else {
+                        aprobo = "REPROBADO";
+                    }
+                }
+
+                Object[] objs = {rs.getString("ID"), rs.getString("NOMBRE_ESTUDIANTE"), rs.getString("APELLIDO_ESTUDIANTE"), rs.getString("NOMBRE_DOCENTE"), rs.getString("SECCION"), rs.getString("ASIGNATURAS"), aprobo};
+
+                tableModel.addRow(objs);
 
             }
         } catch (SQLException e) {

@@ -32,6 +32,7 @@ public class Conexion {
     public static void disconnect() {
         try {
             conn.close();
+
             System.out.println("Conexion cerrada.");
         } catch (SQLException e) {
             System.out.println(e.getMessage());

@@ -5,13 +5,12 @@ import controlBL.*;
 import java.awt.Toolkit;
 import java.sql.*;
 import javax.swing.JComboBox;
-import javax.swing.JLabel;
 import utils.Archivos;
 import utils.ValidarDatosEstudiantes;
 
 public class AddEstudiante extends javax.swing.JDialog {
 
-    private static final Conexion con = new Conexion();
+    private final Conexion con = new Conexion();
     private Estudiantes globalObjEstudiantes = new Estudiantes();
     private Archivos files = new Archivos();
 
@@ -190,7 +189,7 @@ public class AddEstudiante extends javax.swing.JDialog {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void rellenarCbxSecciones() {
-        con.connect();
+        Conexion.connect();
 
         try {
             String strQuery = "SELECT * FROM secciones";
@@ -202,7 +201,7 @@ public class AddEstudiante extends javax.swing.JDialog {
                 cbxSecciones.addItem(new Secciones(id, seccion));
 
             }
-
+            Conexion.disconnect();
         } catch (NumberFormatException | SQLException e) {
 
             System.out.println(e.getMessage());
@@ -222,7 +221,7 @@ public class AddEstudiante extends javax.swing.JDialog {
                 cbxDocentes.addItem(new Docente(id, nombres, apellidos));
 
             }
-
+            Conexion.disconnect();
         } catch (NumberFormatException | SQLException e) {
 
             System.out.println(e.getMessage());
@@ -299,7 +298,7 @@ public class AddEstudiante extends javax.swing.JDialog {
                 if (files.getImagenName() != null) {
                     files.moverArchivo();
                 }
-
+                Conexion.disconnect();
                 CSPrincipal.eventos.post(true);
                 txtNombres.setText("");
                 txtApellidos.setText("");
@@ -323,7 +322,7 @@ public class AddEstudiante extends javax.swing.JDialog {
             PreparedStatement req = con.ejecuatarSenteciaSQL(strQuery);
             req.setInt(1, id);
             req.execute();
-
+            Conexion.disconnect();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -353,7 +352,7 @@ public class AddEstudiante extends javax.swing.JDialog {
                 if (files.getImagenName() != null) {
                     files.moverArchivo();
                 }
-
+                Conexion.disconnect();
                 CSPrincipal.eventos.post(true);
 
                 this.setVisible(false);
